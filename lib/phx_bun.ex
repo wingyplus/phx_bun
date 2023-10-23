@@ -82,6 +82,7 @@ defmodule Bun do
   end
 
   defp os_arch() do
+    # TODO: support more arch.
     case :os.type() do
       {:unix, :darwin} -> {:darwin, arch()}
     end
