@@ -20,6 +20,20 @@ defmodule Bun do
   end
 
   @doc """
+  Running a Bun command from given `profile`.
+  """
+  def run(profile, extra_args \\ []) do
+    {os, arch} = os_arch()
+    config = config_for!(profile)
+
+    System.cmd(
+      Path.expand(Path.join(["_build", "bun-#{os}-#{arch}", "bun"])),
+      config[:args] ++ extra_args
+    )
+    |> elem(0)
+  end
+
+  @doc """
   Get configured version.
   """
   def config_version() do
@@ -43,6 +57,18 @@ defmodule Bun do
            :httpc.request(:get, {url, []}, [], body_format: :binary) do
       {:ok, zip}
     end
+  end
+
+  defp config_for!(profile) do
+    Application.get_env(:phx_bun, profile) ||
+      raise """
+      No configuration for profile #{profile}. To configure profile, simply put this configuration to your config.exs:
+
+          config :phx_bun,
+            #{profile}: [
+              args: ...
+            ]
+      """
   end
 
   defp extract(zip, destination) do
