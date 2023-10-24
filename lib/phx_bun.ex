@@ -7,9 +7,6 @@ defmodule Bun do
   Installs Bun.
   """
   def install() do
-    Application.ensure_started(:ssl)
-    Application.ensure_started(:inets)
-
     version = config_version()
 
     with {:ok, zip} <- download(version, target()),
@@ -55,6 +52,24 @@ defmodule Bun do
     end
   end
 
+  @doc """
+  Returns Bun's OS and architecture target.
+  """
+  def target() do
+    # TODO: support more arch.
+    case :os.type() do
+      {:unix, :darwin} -> {:darwin, arch()}
+    end
+  end
+
+  @doc """
+  Returns Bun's installation location.
+  """
+  def bin_path() do
+    {os, arch} = target()
+    Path.join([build_path(), "bun-#{os}-#{arch}", "bun"])
+  end
+
   defp config_for!(profile) do
     Application.get_env(:phx_bun, profile) ||
       raise """
@@ -75,18 +90,6 @@ defmodule Bun do
 
   defp build_path() do
     Path.expand(Path.join(["_build"]))
-  end
-
-  defp bin_path() do
-    {os, arch} = target()
-    Path.join([build_path(), "bun-#{os}-#{arch}", "bun"])
-  end
-
-  defp target() do
-    # TODO: support more arch.
-    case :os.type() do
-      {:unix, :darwin} -> {:darwin, arch()}
-    end
   end
 
   defp arch() do
