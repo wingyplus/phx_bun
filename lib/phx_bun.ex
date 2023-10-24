@@ -22,7 +22,7 @@ defmodule Bun do
     config = config_for!(profile)
 
     bin_path()
-    |> System.cmd(config[:args] ++ extra_args)
+    |> System.cmd(config[:args] ++ extra_args, cd: config[:cd] || File.cwd!())
     |> elem(0)
   end
 
