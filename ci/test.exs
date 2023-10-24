@@ -12,7 +12,7 @@ for platform <- ["linux/amd64", "linux/arm64"] do
   |> Dagger.Client.container(platform: platform)
   |> Dagger.Container.from("hexpm/elixir:1.15.7-erlang-26.1.2-ubuntu-jammy-20230126")
   |> Dagger.Container.with_env_variable("LANG", "C.UTF-8")
-  |> Dagger.Container.with_env_variable("ERL_FLAGS", "+JMsingle true")
+  |> Dagger.Container.with_env_variable("ERL_FLAGS", "+JPperf true")
   |> Dagger.Container.with_exec(~w"mix local.hex --force")
   |> Dagger.Container.with_exec(~w"mix local.rebar --force")
   |> Dagger.Container.with_mounted_directory("/app", project)
