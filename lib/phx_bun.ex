@@ -59,6 +59,7 @@ defmodule Bun do
     # TODO: support more arch.
     case :os.type() do
       {:unix, :darwin} -> {:darwin, arch()}
+      {:unix, :linux} -> {:linux, arch()}
     end
   end
 
@@ -95,6 +96,7 @@ defmodule Bun do
   defp arch() do
     case :erlang.system_info(:system_architecture) |> to_string() do
       "aarch64" <> _rest -> :aarch64
+      "x86_64" <> _rest -> :x64
     end
   end
 end
