@@ -1,4 +1,4 @@
 defmodule PhxBunTest do
   use ExUnit.Case
-  doctest PhxBun
+  doctest Bun
 end

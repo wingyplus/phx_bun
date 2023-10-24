@@ -11,10 +11,9 @@ defmodule Bun do
     Application.ensure_started(:inets)
 
     version = config_version()
-    {os, arch} = os_arch()
 
-    with {:ok, zip} <- download(version, os, arch),
-         {:ok, bun_path} <- extract(zip, bin_path()) do
+    with {:ok, zip} <- download(version, target()),
+         {:ok, bun_path} <- extract(zip, build_path()) do
       File.chmod(bun_path, 0o755)
     end
   end
@@ -23,13 +22,10 @@ defmodule Bun do
   Running a Bun command from given `profile`.
   """
   def run(profile, extra_args \\ []) do
-    {os, arch} = os_arch()
     config = config_for!(profile)
 
-    System.cmd(
-      Path.expand(Path.join(["_build", "bun-#{os}-#{arch}", "bun"])),
-      config[:args] ++ extra_args
-    )
+    bin_path()
+    |> System.cmd(config[:args] ++ extra_args)
     |> elem(0)
   end
 
@@ -50,7 +46,7 @@ defmodule Bun do
   @doc """
   Download `bun` from the internet.
   """
-  def download(version, os, arch) do
+  def download(version, {os, arch}) do
     url = "https://github.com/oven-sh/bun/releases/download/bun-v#{version}/bun-#{os}-#{arch}.zip"
 
     with {:ok, {_, _, zip}} <-
@@ -77,11 +73,16 @@ defmodule Bun do
     end
   end
 
-  defp bin_path() do
+  defp build_path() do
     Path.expand(Path.join(["_build"]))
   end
 
-  defp os_arch() do
+  defp bin_path() do
+    {os, arch} = target()
+    Path.join([build_path(), "bun-#{os}-#{arch}", "bun"])
+  end
+
+  defp target() do
     # TODO: support more arch.
     case :os.type() do
       {:unix, :darwin} -> {:darwin, arch()}
